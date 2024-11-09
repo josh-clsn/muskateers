@@ -2,8 +2,8 @@ import csv
 import subprocess
 
 # Set initial port numbers
-node_port = 6801
-metrics_port = 13001
+node_port = 6851
+metrics_port = 13051
 
 # Define the base command with placeholders
 base_command = (
