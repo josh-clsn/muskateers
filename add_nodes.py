@@ -19,7 +19,7 @@ end_index = 20   # End at the 30th address (exclusive)
 # Open the log file to record executed commands
 with open("executed_commands.log", "w") as log_file:
     # Read addresses from CSV
-    with open("eth_addresses_only.csv", "r") as file:
+    with open("eth_addresses_all.csv", "r") as file:
         reader = list(csv.DictReader(file))  # Convert to a list for easier slicing
         
         # Slice the list of addresses based on the specified range
