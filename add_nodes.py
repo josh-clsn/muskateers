@@ -7,14 +7,14 @@ metrics_port = 13001
 
 # Define the base command with placeholders
 base_command = (
-    "sudo -S $HOME/.local/bin/safenode-manager add --count 1 "
+    "sudo -S $HOME/.local/bin/antctl add --count 1 "
     "--rewards-address {address} --auto-restart --version 0.112.3 "
     "--node-port {node_port} --enable-metrics-server --metrics-port {metrics_port} evm-arbitrum-sepolia"
 )
 
 # Set your desired range
-start_index = 0  # Start at the second address (0-based index)
-end_index = 20   # End at the 30th address (exclusive)
+start_index = 0      # Start at the second address (0-based index)
+end_index = 0        # End at the 30th address (exclusive)
 
 # Open the log file to record executed commands
 with open("executed_commands.log", "w") as log_file:
