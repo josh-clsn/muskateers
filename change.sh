@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set variables
-services_dir="/var/safenode-manager/services"
+services_dir="/var/antctl/services"
 new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/1/safenode"
 new_binary="$HOME/safenode"
 log_file="$HOME/update_log.txt"
