@@ -8,7 +8,7 @@ metrics_port = 13001
 # Define the base command with placeholders
 base_command = (
     "sudo -S $HOME/.local/bin/antctl add --count 1 "
-    "--rewards-address {address} --auto-restart --version 0.112.3 "
+    "--rewards-address {address} --version 0.3.0 "
     "--node-port {node_port} --enable-metrics-server --metrics-port {metrics_port} evm-arbitrum-sepolia"
 )
 
