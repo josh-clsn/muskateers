@@ -2,10 +2,10 @@
 
 # Set variables
 services_dir="/var/antctl/services"
-new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/1/antnode"
+new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/2/antnode"
 new_binary="$HOME/antnode"
 log_file="$HOME/update_log.txt"
-sleep_interval=60   # Wait time (in seconds) between updating each node
+sleep_interval=10   # Wait time (in seconds) between updating each node
 
 # Simple logging function
 log() {
