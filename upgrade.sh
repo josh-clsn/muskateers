@@ -50,29 +50,38 @@ for service_path in "$services_dir"/antnode*; do
 
     log "Processing $service_name..."
 
-    # 1. Stop the service via systemctl (Adjust if you have a different mechanism)
-    log "Stopping the service: $service_name"
-    if ! systemctl stop "$service_name"; then
-        log "Warning: Failed to stop $service_name via systemctl. Continuing anyway..."
+    # Check if the service is currently running
+    if systemctl is-active --quiet "$service_name"; then
+        was_running=true
+        log "$service_name is currently running. Stopping it..."
+        if ! systemctl stop "$service_name"; then
+            log "Warning: Failed to stop $service_name via systemctl."
+        fi
+        
+        # Ensure the process is indeed stopped
+        pkill -f "$service_name"
+    else
+        was_running=false
+        log "$service_name is not running. Will only replace the binary."
     fi
-    
-    # Verify the process is indeed stopped
-    pkill -f "$service_name"
 
-    # 2. Replace the binary
+    # Replace the binary
     log "Replacing binary for $service_name..."
     cp "$new_binary" "$service_path/antnode"
     chmod +x "$service_path/antnode"
     log "Binary replaced successfully for $service_name."
 
-    # 3. Restart the service
-    log "Starting the service: $service_name"
-    if ! systemctl start "$service_name"; then
-        log "Error: Failed to start $service_name via systemctl."
-        continue
+    # If the service was running, start it again
+    if [ "$was_running" = true ]; then
+        log "Starting the service: $service_name"
+        if ! systemctl start "$service_name"; then
+            log "Error: Failed to start $service_name via systemctl."
+            # Decide whether you want to continue or exit here
+            continue
+        fi
     fi
 
-    # 4. Wait 60 seconds before processing the next node
+    # Wait 60 seconds before processing the next node
     log "Waiting $sleep_interval seconds before processing the next node..."
     sleep "$sleep_interval"
 done
@@ -81,6 +90,5 @@ done
 log "Cleaning up the downloaded binary..."
 rm -f "$new_binary"
 
-log "All services have been updated and restarted successfully."
+log "All relevant services have been updated."
 exit 0
-
