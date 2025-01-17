@@ -2,7 +2,8 @@
 #
 # antnode-updater.sh
 # This script updates antnode binaries for multiple systemd services
-# located under /var/antctl/services/antnode*.
+# located under /var/antctl/services/antnode*, using a private GitHub
+# binary download (requires a Personal Access Token).
 #
 
 #############################
@@ -12,8 +13,12 @@
 # Directory containing all the antnode services
 services_dir="/var/antctl/services"
 
-# URL for the new antnode binary
+# URL for the new antnode binary (private repo)
 new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/2/antnode"
+
+# The personal access token for GitHub (ideally from an environment var, e.g. $GITHUB_TOKEN).
+# DO NOT hardcode your actual token here in real-world scenarios.
+github_token="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"
 
 # Temporary download location for the new binary
 new_binary="$HOME/antnode"
@@ -52,10 +57,17 @@ if [ ! -d "$services_dir" ]; then
     exit 1
 fi
 
-# Download the new binary
-log "Downloading the latest antnode binary from $new_binary_url..."
-if ! wget -q -O "$new_binary" "$new_binary_url"; then
-    log "Error: Failed to download the antnode binary."
+# Make sure we have a GitHub token
+if [ -z "$github_token" ]; then
+    log "Error: No GitHub token provided. Please set the GITHUB_TOKEN environment variable."
+    exit 1
+fi
+
+# Download the new binary from a private repo with an Authorization header
+log "Downloading the latest antnode binary from a private GitHub repo..."
+if ! wget --header="Authorization: Bearer $github_token" \
+          -q -O "$new_binary" "$new_binary_url"; then
+    log "Error: Failed to download the antnode binary (check URL or token)."
     exit 1
 fi
 
@@ -84,11 +96,11 @@ for service_path in "$services_dir"/antnode*; do
         log "$service_name is running. Attempting to stop it..."
         if ! systemctl stop "$service_name"; then
             log "Warning: Failed to stop $service_name via systemctl."
-            # Decide how you want to handle this error—continue or exit
+            # Decide how to handle this error—continue or exit
             # For now, we just log and continue.
         fi
         
-        # Optionally verify it's really stopped. For safety, we can wait a few seconds:
+        # Optionally verify it's actually stopped
         for i in {1..5}; do
             if ! systemctl is-active --quiet "$service_name"; then
                 log "$service_name successfully stopped."
@@ -113,7 +125,7 @@ for service_path in "$services_dir"/antnode*; do
         log "Starting $service_name..."
         if ! systemctl start "$service_name"; then
             log "Error: Failed to start $service_name via systemctl."
-            # Decide how you want to handle this error—continue or exit
+            # Decide how to handle this error—continue or exit
             # For now, we just log and continue.
         else
             # Optionally check status again
