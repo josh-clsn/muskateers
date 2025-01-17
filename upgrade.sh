@@ -1,32 +1,58 @@
 #!/bin/bash
+#
+# antnode-updater.sh
+# This script updates antnode binaries for multiple systemd services
+# located under /var/antctl/services/antnode*.
+#
 
-# Set variables
+#############################
+#        CONFIGURATION      #
+#############################
+
+# Directory containing all the antnode services
 services_dir="/var/antctl/services"
-new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/2/antnode"
-new_binary="$HOME/antnode"
-log_file="$HOME/update_log.txt"
-sleep_interval=10   # Wait time (in seconds) between updating each node
 
-# Simple logging function
+# URL for the new antnode binary
+new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/2/antnode"
+
+# Temporary download location for the new binary
+new_binary="$HOME/antnode"
+
+# Log file for script output
+log_file="$HOME/update_log.txt"
+
+# How long (in seconds) to wait between updating each node
+sleep_interval=10
+
+#############################
+#       LOGGING SETUP       #
+#############################
+
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$log_file"
 }
 
-# Check if running as root
+#############################
+#        MAIN SCRIPT        #
+#############################
+
+# Must run as root
 if [ "$EUID" -ne 0 ]; then
-    log "Please run this script as root or with sudo."
+    log "Error: Please run this script as root or via sudo."
     exit 1
 fi
 
-log "Starting antnode binary replacement script."
+log "====================="
+log "Starting antnode update script."
+log "====================="
 
-# Check if services directory exists
+# Ensure services directory exists
 if [ ! -d "$services_dir" ]; then
     log "Error: Services directory '$services_dir' does not exist."
     exit 1
 fi
 
-# Download the latest antnode binary
+# Download the new binary
 log "Downloading the latest antnode binary from $new_binary_url..."
 if ! wget -q -O "$new_binary" "$new_binary_url"; then
     log "Error: Failed to download the antnode binary."
@@ -34,35 +60,46 @@ if ! wget -q -O "$new_binary" "$new_binary_url"; then
 fi
 
 # Make the downloaded binary executable
-log "Setting execute permissions on the antnode binary..."
+log "Setting execute permissions on the downloaded binary..."
 chmod +x "$new_binary"
 
-# Loop through each antnode service directory
+# Iterate through each antnode service directory
 for service_path in "$services_dir"/antnode*; do
-    # Ensure we're only processing directories
+    # Skip if it's not a directory
     if [ ! -d "$service_path" ]; then
         log "Skipping non-directory item: $service_path"
         continue
     fi
 
-    # Extract the service name (e.g., antnode1, antnode2, antnode3...)
+    # Extract the systemd service name (e.g., antnode1, antnode2, etc.)
     service_name=$(basename "$service_path")
 
-    log "Processing $service_name..."
+    log "---------------------------------------"
+    log "Processing service: $service_name"
+    log "---------------------------------------"
 
-    # Check if the service is currently running
+    # Check if service is running
     if systemctl is-active --quiet "$service_name"; then
         was_running=true
-        log "$service_name is currently running. Stopping it..."
+        log "$service_name is running. Attempting to stop it..."
         if ! systemctl stop "$service_name"; then
             log "Warning: Failed to stop $service_name via systemctl."
+            # Decide how you want to handle this error—continue or exit
+            # For now, we just log and continue.
         fi
         
-        # Ensure the process is indeed stopped
-        pkill -f "$service_name"
+        # Optionally verify it's really stopped. For safety, we can wait a few seconds:
+        for i in {1..5}; do
+            if ! systemctl is-active --quiet "$service_name"; then
+                log "$service_name successfully stopped."
+                break
+            fi
+            log "Waiting for $service_name to fully stop..."
+            sleep 1
+        done
     else
         was_running=false
-        log "$service_name is not running. Will only replace the binary."
+        log "$service_name is not running. Proceeding with binary replacement."
     fi
 
     # Replace the binary
@@ -71,24 +108,38 @@ for service_path in "$services_dir"/antnode*; do
     chmod +x "$service_path/antnode"
     log "Binary replaced successfully for $service_name."
 
-    # If the service was running, start it again
+    # If it was running before, start it again
     if [ "$was_running" = true ]; then
-        log "Starting the service: $service_name"
+        log "Starting $service_name..."
         if ! systemctl start "$service_name"; then
             log "Error: Failed to start $service_name via systemctl."
-            # Decide whether you want to continue or exit here
-            continue
+            # Decide how you want to handle this error—continue or exit
+            # For now, we just log and continue.
+        else
+            # Optionally check status again
+            for i in {1..5}; do
+                if systemctl is-active --quiet "$service_name"; then
+                    log "$service_name is running again."
+                    break
+                fi
+                log "Waiting for $service_name to show as active..."
+                sleep 1
+            done
         fi
     fi
 
-    # Wait 60 seconds before processing the next node
-    log "Waiting $sleep_interval seconds before processing the next node..."
+    # Wait before processing the next node
+    log "Waiting $sleep_interval seconds before updating the next service..."
     sleep "$sleep_interval"
 done
 
-# Clean up the downloaded binary
-log "Cleaning up the downloaded binary..."
+# Remove the temporarily downloaded binary
+log "Cleaning up the downloaded binary from $new_binary..."
 rm -f "$new_binary"
 
+log "===================================="
 log "All relevant services have been updated."
+log "Script completed successfully."
+log "===================================="
+
 exit 0
