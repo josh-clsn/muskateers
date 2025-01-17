@@ -18,7 +18,7 @@ new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/2/antn
 
 # The personal access token for GitHub (ideally from an environment var, e.g. $GITHUB_TOKEN).
 # DO NOT hardcode your actual token here in real-world scenarios.
-github_token="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"
+github_token="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"
 
 # Temporary download location for the new binary
 new_binary="$HOME/antnode"
