@@ -16,7 +16,7 @@
 services_dir="/var/antctl/services"
 
 # URL for the new antnode binary
-new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/3/antnode"
+new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/2/antnode"
 
 # Temporary download location for the new binary
 new_binary="$HOME/antnode"
@@ -26,7 +26,7 @@ log_file="$HOME/update_log.txt"
 
 # Wait times (in seconds) depending on prior state
 wait_if_was_running=10
-wait_if_was_not_running=60
+wait_if_was_not_running=80
 
 # Threshold for RAM usage (in %)
 ram_threshold=85
