@@ -29,7 +29,7 @@ wait_if_was_running=10
 wait_if_was_not_running=150
 
 # Threshold for RAM usage (in %)
-ram_threshold=85
+ram_threshold=82
 
 #############################
 #       LOGGING SETUP       #
