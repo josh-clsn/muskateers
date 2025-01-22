@@ -2,7 +2,7 @@
 
 # Set variables
 services_dir="/var/antctl/services"
-new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/1/antnode"
+new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/2/antnode"
 new_binary="$HOME/antnode"
 log_file="$HOME/update_log.txt"
 
