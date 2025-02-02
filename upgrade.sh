@@ -26,7 +26,7 @@ log_file="$HOME/update_log.txt"
 
 # Wait times (in seconds) depending on prior state
 wait_if_was_running=10
-wait_if_was_not_running=70
+wait_if_was_not_running=75
 
 # Threshold for RAM usage (in %)
 ram_threshold=85
