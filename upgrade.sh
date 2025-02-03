@@ -4,8 +4,8 @@
 # This script updates antnode binaries for multiple systemd services
 # located under /var/antctl/services/antnode*.
 #
-# It only monitors system-wide RAM usage right before starting a node.
-# If RAM usage hits >= 85%, the script immediately terminates.
+# It only monitors system-wide RAM usage and disk usage right before starting a node.
+# If RAM usage hits >= 85% or disk usage reaches >= 80%, the script immediately terminates.
 #
 
 #############################
@@ -31,6 +31,9 @@ wait_if_was_not_running=75
 # Threshold for RAM usage (in %)
 ram_threshold=85
 
+# Threshold for Disk usage (in %)
+disk_threshold=80
+
 #############################
 #       LOGGING SETUP       #
 #############################
@@ -55,6 +58,21 @@ check_ram() {
 }
 
 #############################
+#   FUNCTION: CHECK DISK    #
+#############################
+check_disk() {
+    # Using the root filesystem (/) for disk space check. Adjust if needed.
+    local disk_usage
+    disk_usage=$(df / | awk 'NR==2 {gsub("%", ""); print $5}')
+    log "Current disk usage: ${disk_usage}%"
+
+    if (( disk_usage >= disk_threshold )); then
+        log "Disk usage is at ${disk_usage}% (threshold ${disk_threshold}%). Terminating script."
+        exit 1
+    fi
+}
+
+#############################
 #        MAIN SCRIPT        #
 #############################
 
@@ -65,7 +83,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 echo "============================================="
-echo " antNode Updater with On-Start RAM Check "
+echo " antNode Updater with On-Start RAM & Disk Check "
 echo "============================================="
 echo "1) Update ALL nodes (even if they're running)."
 echo "2) ONLY update nodes that are NOT running."
@@ -155,8 +173,9 @@ for service_path in "$services_dir"/antnode*; do
     chmod +x "$service_path/antnode"
     log "Binary replaced successfully for $service_name."
 
-    # Before starting, check RAM usage
+    # Before starting, check RAM and Disk usage
     check_ram
+    check_disk
 
     # Start the service if we updated it
     log "Starting $service_name..."
@@ -197,4 +216,3 @@ log "Script completed successfully."
 log "===================================="
 
 exit 0
-
