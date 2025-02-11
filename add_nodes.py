@@ -9,7 +9,7 @@ metrics_port = 13001
 base_command = (
     "sudo -S $HOME/.local/bin/antctl add --count 1 "
     "--rewards-address {address} --version 0.3.0 "
-    "--node-port {node_port} --enable-metrics-server --metrics-port {metrics_port} evm-arbitrum-sepolia"
+    "--node-port {node_port} --enable-metrics-server --metrics-port {metrics_port} evm-arbitrum-one"
 )
 
 # Set your desired range
@@ -19,7 +19,7 @@ end_index = 0        # End at the 30th address (exclusive)
 # Open the log file to record executed commands
 with open("executed_commands.log", "w") as log_file:
     # Read addresses from CSV
-    with open("addresses_mont_all.csv", "r") as file:
+    with open("addresses.csv", "r") as file:
         reader = list(csv.DictReader(file))  # Convert to a list for easier slicing
         
         # Slice the list of addresses based on the specified range
