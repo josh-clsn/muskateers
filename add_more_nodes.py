@@ -42,8 +42,8 @@ base_command = (
 )
 
 # Set your desired range
-start_index = 261  # Start after previously used indices
-end_index = 301    # Adjust as needed for the new range
+start_index = 0  # Start after previously used indices
+end_index = 0    # Adjust as needed for the new range
 
 # Open the log file to record executed commands
 with open(log_file_path, "a") as log_file:  # Append mode
