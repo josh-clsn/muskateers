@@ -37,7 +37,7 @@ node_port, metrics_port = get_last_used_ports(log_file_path)
 # Define the base command with placeholders
 base_command = (
     "sudo -S $HOME/.local/bin/antctl add --count 1 "
-    "--rewards-address {address} --auto-restart --version 0.3.3 "
+    "--rewards-address {address} --auto-restart --version 0.3.6 "
     "--node-port {node_port} --enable-metrics-server --metrics-port {metrics_port} evm-arbitrum-one"
 )
 
