@@ -16,7 +16,7 @@
 services_dir="/var/antctl/services"
 
 # URL for the new antnode binary
-new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/2/antnode"
+new_binary_url="https://github.com/josh-clsn/muskateers/releases/download/1/antnode"
 
 # Temporary download location for the new binary
 new_binary="$HOME/antnode"
