@@ -12,7 +12,7 @@ base_command = (
 )
 
 # Hard-coded Ethereum address
-address = "0xYourEthereumAddressHere"
+address = "0x419B378a3A7F8D05f1B4A7601B27F602A2ebb70a"
 
 # Open the log file to record executed commands
 with open("executed_commands.log", "w") as log_file:
